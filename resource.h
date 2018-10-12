@@ -13,5 +13,6 @@
 #define IDC_LTIME                               1022
 #define IDC_ATIME                               1023
 #define IDC_CURTIME                             1024
-#define IDC_RBVTIME                             1028
-#define IDC_RBATIME                             1030
+#define IDC_CURBYTE                             1031
+#define IDC_RBVTIME                             1032
+#define IDC_RBATIME                             1033

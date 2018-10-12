@@ -65,12 +65,18 @@ LRESULT CALLBACK wndProc(
 
 void mainDlg_curTime(HWND hwnd)
 {
+	// get cursor position
 	int curPos = getDlgSpinValue(hwnd, IDC_CURPOS);
-	double time = barDraw_ft.pixToUsF(curPos);
-	if(IsDlgButtonChecked(hwnd, IDC_RBVTIME))
-		time += hpc_toUsFF(barDraw_ft.vTime);
-	setDlgItemFlt(hwnd, IDC_CURTIME, time);
 	cursorPos = curPos;
+	if(IsDlgButtonChecked(hwnd, IDC_RBVTIME))
+		curPos += barDraw_ft.vLines;
+	
+	// update controls
+	setDlgItemFlt(hwnd, IDC_CURTIME, 
+		barDraw_ft.pixToUsF(curPos));
+	SetDlgItemInt(hwnd, IDC_CURBYTE, 
+		curPos * ddrawFb_ddsd.lPitch, 0);
+
 	InvalidateRect(hYelWnd, 0, TRUE);
 }
 
