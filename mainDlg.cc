@@ -28,30 +28,61 @@ void mainDlgProc_frameTime(HWND hwnd)
 	setDlgItemFlt(hwnd, IDC_ATIME, hpc_toUsFF(barDraw_ft.aTime));
 	setDlgItemFlt(hwnd, IDC_VTIME, hpc_toUsFF(barDraw_ft.vTime));
 	setDlgItemFlt(hwnd, IDC_LTIME, hpc_toUsFF(barDraw_ft.lTime));
+	
+	setDlgSpinRange(hwnd, IDC_CURPOS, 0, lrint(barDraw_ft.aLines));
 }
+
+int cursorPos;
+HWND hYelWnd;
 
 LRESULT CALLBACK wndProc(
 	HWND hwnd, UINT uMsg,
 	WPARAM wParam, LPARAM lParam)
 {
-	if(uMsg == WM_ERASEBKGND ) {
+	if(uMsg == WM_PAINT ) {
+		PAINTSTRUCT ps;
+		HDC hdc = BeginPaint(hwnd, &ps);
+		
+	
 		RECT rc; GetClientRect(hwnd, &rc);
-		SetDCBrushColor((HDC)wParam, RGB(255,255,0));
-		FillRect((HDC)wParam, &rc, (HBRUSH)
+		SetDCBrushColor(hdc, RGB(255,255,0));
+		FillRect(hdc, &rc, (HBRUSH)
 			GetStockObject(DC_BRUSH));
+			
+		if(cursorPos) {
+			SetDCPenColor(hdc, RGB(0,128,255));
+			SelectObject(hdc, GetStockObject(DC_PEN));
+			MoveToEx(hdc, 0, cursorPos, 0);
+			LineTo(hdc, rc.right, cursorPos);
+		}
+		
+		EndPaint(hwnd, &ps);
 		return 0;
 	}
 
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
+void mainDlg_curTime(HWND hwnd)
+{
+	int curPos = getDlgSpinValue(hwnd, IDC_CURPOS);
+	double time = barDraw_ft.pixToUsF(curPos);
+	if(IsDlgButtonChecked(hwnd, IDC_RBVTIME))
+		time += hpc_toUsFF(barDraw_ft.vTime);
+	setDlgItemFlt(hwnd, IDC_CURTIME, time);
+	cursorPos = curPos;
+	InvalidateRect(hYelWnd, 0, TRUE);
+}
+
 void mainDlg_init(HWND hwnd)
 {	
-	stdClass_create(L"", WS_POPUP|WS_VISIBLE, 
+	hYelWnd = stdClass_create(L"", WS_POPUP|WS_VISIBLE, 
 		WS_EX_TOPMOST, 0, 0, 32, ddrawFb_ddsd.dwHeight,
 		hwnd, NULL, wndProc, 0);
 
 	mainDlgProc_frameTime(hwnd);
+	CheckDlgButton(hwnd, IDC_RBATIME, 1);
+	mainDlg_curTime(hwnd);
 }
 
 INT_PTR CALLBACK mainDlgProc(
@@ -60,7 +91,12 @@ INT_PTR CALLBACK mainDlgProc(
 {
 	DLGMSG_SWITCH(
 	 ON_MESSAGE(WM_INITDIALOG, mainDlg_init(hwnd))
+	 ON_MESSAGE(WM_VSCROLL, mainDlg_curTime(hwnd))
 	 ON_MESSAGE(WM_CLOSE, EndDialog(hwnd, 0));
+	 CASE_COMMAND(
+	  ON_COMMAND(IDC_RBATIME, mainDlg_curTime(hwnd))
+		ON_COMMAND(IDC_RBVTIME, mainDlg_curTime(hwnd))
+	 ,)
 	,)
 }
 
