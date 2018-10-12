@@ -62,32 +62,32 @@ HRESULT FrameTime::init(void)
 
 	
 GET_MORE_TIMES:
-	IFRET(ddrawFb_spinNotVsync());
+	IFRET(ddrawFb_spinVsync());
 	INT64 lastTime;
 	for(int i = 0; i <= STEP_FRAME; i++) {
-		IFRET(ddrawFb_spinVsync());
-		INT64 syncTime; hpc_getTime(&syncTime);
 		IFRET(ddrawFb_spinNotVsync());
+		INT64 syncTime; hpc_getTime(&syncTime);
+		IFRET(ddrawFb_spinVsync());
 		INT64 curTime = hpc_getTime();		
 		if(i) { wrPos[0] = curTime-syncTime;
 			wrPos[MAX_FRAME] = curTime-lastTime; wrPos++; }
 		lastTime = curTime;
 	}
 	
-	
-	
 	int count = wrPos-data[0];
-	if(!calcTime(vTime, data[0], count)
+	if(!calcTime(aTime, data[0], count)
 	|| !calcTime(fTime, data[1], count)) {
 		if(count == MAX_FRAME) return -1;
 		goto GET_MORE_TIMES; }
 		
 	// extra fields
-	aTime = fTime-vTime;
 	aLines = ddrawFb_ddsd.dwHeight;
 	fLines = lrint(aLines*fTime/aTime);
-	vLines = lrint(aLines*vTime/aTime);
-	lTime = lrint(fTime/fLines);
+	vLines = fLines-aLines;
+	lTime = fTime/fLines;
+	vTime = (fTime/fLines)*vLines;
+	aTime = (fTime/fLines)*aLines;
+	
 	return 0;
 }
 
