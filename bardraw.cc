@@ -23,25 +23,21 @@ void BarThread_test1(void)
 {
 	QuickTrash_init(RGB(0,255,0));
 
-	int cycCount = 10;
-	int mulVal = lrint(4294967296.0*16 * 
-		cycCount / barDraw_ft.aTime);
+	int maxTime = lrint((2*barDraw_ft.vTime)
+		* (floor((barDraw_ft.fTime * 0.95) /
+			(2*barDraw_ft.vTime))-0.05));	
 		
-		
-		
-	int maxTime = ifloor(barDraw_ft.aTime
-		*(cycCount-1.0)/cycCount);
+	int mulVal = lrint((4294967296.0/2)
+		* 16 / barDraw_ft.vTime);
 	
 	while(1) {
 		ddrawFb_spinVsync();
-		ddrawFb_spinNotVsync();
 		int baseTime = hpc_getTime();
-		QuickTrash(RGB(0, 0, 0));
+		QuickTrash(0);
 		while(1) {
 			int curTime = hpc_getTime()-baseTime;
 			if(curTime > maxTime) break;
-			int pixVal = ((INT64(curTime) * mulVal) >> 32) & 255;
-			QuickTrash(RGB(pixVal, pixVal, pixVal));
+			QuickTrash(((INT64(curTime) * mulVal) >> 32));
 		}
 	}
 }

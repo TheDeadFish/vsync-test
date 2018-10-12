@@ -137,7 +137,7 @@ void QuickTrash_loop(int xpos, __m128 x1, __m128 x2)
 	} while( poit < poitEnd);
 }
 
-void QuickTrash(int xpos)
+REGCALL(1) void QuickTrash(int xpos)
 {
 	__m128 x1 = QuickTrash_x[xpos&3];
 	__m128 x2 = QuickTrash_x[4];
