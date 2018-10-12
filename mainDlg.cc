@@ -10,8 +10,6 @@ const char progName[] = "test";
 // barDraw interface
 void barDraw_start(void);
 extern FrameTime barDraw_ft;
-extern int barDraw_delay1;
-extern int barDraw_delay2;
 
 void setDlgItemFlt(HWND hwnd,
 	int ctrlId, float value)
@@ -23,8 +21,6 @@ void setDlgItemFlt(HWND hwnd,
 
 void mainDlgProc_frameTime(HWND hwnd)
 {
-
-	
 	SetDlgItemInt(hwnd, IDC_TOTLINE, barDraw_ft.fLines, 0);
 	SetDlgItemInt(hwnd, IDC_ACTLINE, barDraw_ft.aLines, 0);
 	SetDlgItemInt(hwnd, IDC_VLINES, barDraw_ft.vLines, 0);
@@ -32,62 +28,30 @@ void mainDlgProc_frameTime(HWND hwnd)
 	setDlgItemFlt(hwnd, IDC_ATIME, hpc_toUsFF(barDraw_ft.aTime));
 	setDlgItemFlt(hwnd, IDC_VTIME, hpc_toUsFF(barDraw_ft.vTime));
 	setDlgItemFlt(hwnd, IDC_LTIME, hpc_toUsFF(barDraw_ft.lTime));
-	
-	setDlgSpinRange(hwnd, IDC_CURPOS, 0, lrint(barDraw_ft.aTime));
-	setDlgSpinRange(hwnd, IDC_DELAYPX, 0, barDraw_ft.aLines);
-	setDlgSpinRange(hwnd, IDC_DELAYTM, 0, lrint(barDraw_ft.aTime));
+}
+
+LRESULT CALLBACK wndProc(
+	HWND hwnd, UINT uMsg,
+	WPARAM wParam, LPARAM lParam)
+{
+	if(uMsg == WM_ERASEBKGND ) {
+		RECT rc; GetClientRect(hwnd, &rc);
+		SetDCBrushColor((HDC)wParam, RGB(255,255,0));
+		FillRect((HDC)wParam, &rc, (HBRUSH)
+			GetStockObject(DC_BRUSH));
+		return 0;
+	}
+
+	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
 void mainDlg_init(HWND hwnd)
 {	
+	stdClass_create(L"", WS_POPUP|WS_VISIBLE, 
+		WS_EX_TOPMOST, 0, 0, 32, ddrawFb_ddsd.dwHeight,
+		hwnd, NULL, wndProc, 0);
+
 	mainDlgProc_frameTime(hwnd);
-}
-
-void mainDlg_curTime(HWND hwnd)
-{
-	int curPos = getDlgSpinValue(hwnd, IDC_CURPOS);
-	setDlgItemFlt(hwnd, IDC_CURTIME,  barDraw_ft.pixToUsF(curPos));
-}
-
-void mainDlg_chgDelayMode(HWND hwnd)
-{
-	int curPos = getDlgSpinValue(hwnd, IDC_DELAYTM);
-	if(IsDlgButtonChecked(hwnd, IDC_RBSYNC)) {
-		barDraw_delay1 = curPos; barDraw_delay2 = 100;
-	} else {
-		barDraw_delay2 = curPos; barDraw_delay1 = 0; }
-}
-
-void mainDlg_chgDelay(HWND hwnd, int ctrlId)
-{
-	int curPos = getDlgSpinValue(hwnd, ctrlId);
-	if(ctrlId == IDC_DELAYTM) {
-		setDlgSpinValue(hwnd, IDC_DELAYPX, barDraw_ft.usToPix(curPos));
-	} else {
-		setDlgSpinValue(hwnd, IDC_DELAYTM, barDraw_ft.pixToUs(curPos)); }
-	mainDlg_chgDelayMode(hwnd);
-}
-
-void mainDlg_scroll(HWND hwnd, HWND sender)
-{
-	int ctrlId = GetDlgCtrlID(sender);
-	switch(ctrlId) {
-	case IDC_CURPOS: 
-		mainDlg_curTime(hwnd); break;
-	case IDC_DELAYTM: case IDC_DELAYPX:
-		mainDlg_chgDelay(hwnd, ctrlId);
-		break;
-	
-	
-		
-	
-	
-
-		
-	}
-	
-	
-
 }
 
 INT_PTR CALLBACK mainDlgProc(
@@ -96,15 +60,7 @@ INT_PTR CALLBACK mainDlgProc(
 {
 	DLGMSG_SWITCH(
 	 ON_MESSAGE(WM_INITDIALOG, mainDlg_init(hwnd))
-	 ON_MESSAGE(WM_VSCROLL, mainDlg_scroll(hwnd, sender))
-	 /*ON_MESSAGE(WM_CLOSE, mainDlg.close(); EndDialog(hwnd, 0))*/
-	 CASE_COMMAND(
-	  ON_COMMAND(IDC_RBSYNC, mainDlg_chgDelayMode(hwnd))
-		ON_COMMAND(IDC_RBACT, mainDlg_chgDelayMode(hwnd))
-	 ,)/*(
-	 CASE_NOTIFY(
-	  ON_LVN_ITEMACT(NM_DBLCLK, IDC_LIST1, mainDlg.dclk())
-	 ,)*/
+	 ON_MESSAGE(WM_CLOSE, EndDialog(hwnd, 0));
 	,)
 }
 
@@ -116,4 +72,5 @@ int main()
 
 	DialogBox(NULL, MAKEINTRESOURCE(
 		IDD_DIALOG1), NULL, mainDlgProc);
+	exit(1);
 }

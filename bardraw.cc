@@ -21,6 +21,15 @@ void barDraw_init(void)
 
 void BarThread_test1(void)
 {
+
+}
+
+
+DWORD WINAPI BarThreadProc(
+  _In_ LPVOID lpParameter
+) {
+	barDraw_init();
+	
 	QuickTrash_init(RGB(0,255,0));
 
 	int maxTime = lrint((2*barDraw_ft.vTime)
@@ -39,26 +48,6 @@ void BarThread_test1(void)
 			if(curTime > maxTime) break;
 			QuickTrash(((INT64(curTime) * mulVal) >> 32));
 		}
-	}
-}
-
-
-DWORD WINAPI BarThreadProc(
-  _In_ LPVOID lpParameter
-) {
-	barDraw_init();
-	
-	BarThread_test1();
-		
-	while(1) {
-		ddrawFb_spinVsync();
-		hpc_spinWaitUs(barDraw_delay1);
-		TrashImg(RGB(0, 255, 0), 50);
-		
-		// reset the strip to red
-		ddrawFb_spinNotVsync();
-		hpc_spinWaitUs(2000);
-		TrashImg(RGB(0, 0, 255), 50);
 	}
 }
 
