@@ -106,14 +106,8 @@ void QuickTrash(int color)
 }
 */
 
-__m128 QuickTrash_x2;
-__m128 QuickTrash_x1[4];
+__m128 QuickTrash_x[5];
 float* QuickTrash_end;
-
-
-// intrin.h trash fix
-TMPL(T) __m128 df_mm_load_ss(const T& p) { __m128 x; 
-	asm ("movss %1, %0" : "=x"(x) : "m"(p)); return x; }
 	
 void QuickTrash_init(int color)
 {
@@ -122,16 +116,9 @@ void QuickTrash_init(int color)
 	QuickTrash_end = poit;
 
 	// 
-	__m128 x = df_mm_load_ss(color);
-	x = _mm_shuffle_ps(x, x, 0);
-	QuickTrash_x2 = x;
-	
-	// 
-	x = _mm_move_ss(x, _mm_setzero_ps());
-	for(int i = 0; i < 4; i++) {
-		QuickTrash_x1[i] = x;
-		x = _mm_shuffle_ps(x, x, 0x93);
-	}
+	for(int i = 0; i < 20; i++) {
+		((int*)&QuickTrash_x)[i] = is_one_of(
+			i,0,5,10,15) ? 0 : color; }
 }
 
 
@@ -152,8 +139,8 @@ void QuickTrash_loop(int xpos, __m128 x1, __m128 x2)
 
 void QuickTrash(int xpos)
 {
-	__m128 x1 = QuickTrash_x1[xpos&3];
-	__m128 x2 = QuickTrash_x2;
+	__m128 x1 = QuickTrash_x[xpos&3];
+	__m128 x2 = QuickTrash_x[4];
 
 	switch((xpos>>2)&3) {
 	case 0: QuickTrash_loop<0>(xpos,x1,x2); break; 
