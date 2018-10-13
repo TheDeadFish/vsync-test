@@ -111,7 +111,7 @@ float* QuickTrash_end;
 	
 void QuickTrash_init(int color)
 {
-	float *poit = ((float*)SP_Surface)+8;
+	float *poit = ((float*)SP_Surface)+16;
 	PTRADD(poit, SP_Pitch*SP_Height);
 	QuickTrash_end = poit;
 
@@ -125,7 +125,7 @@ void QuickTrash_init(int color)
 template <int n> ALWAYS_INLINE
 void QuickTrash_loop(int xpos, __m128 x1, __m128 x2)
 {
-	float *poit = ((float*)SP_Surface)+8;
+	float *poit = ((float*)SP_Surface)+16;
 	float* poitEnd = QuickTrash_end;
 
 	do {

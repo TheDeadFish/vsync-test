@@ -83,7 +83,7 @@ void mainDlg_curTime(HWND hwnd)
 void mainDlg_init(HWND hwnd)
 {	
 	hYelWnd = stdClass_create(L"", WS_POPUP|WS_VISIBLE, 
-		WS_EX_TOPMOST, 0, 0, 32, ddrawFb_ddsd.dwHeight,
+		WS_EX_TOPMOST, 8, 0, 32, ddrawFb_ddsd.dwHeight,
 		hwnd, NULL, wndProc, 0);
 
 	mainDlgProc_frameTime(hwnd);
