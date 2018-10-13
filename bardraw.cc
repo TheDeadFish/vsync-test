@@ -8,6 +8,7 @@ FrameTime barDraw_ft;
 HANDLE barDraw_event;
 int barDraw_delay1;
 int barDraw_delay2;
+HANDLE barDraw_hThread;
 
 void barDraw_init(void)
 {
@@ -54,8 +55,15 @@ DWORD WINAPI BarThreadProc(
 void barDraw_start(void)
 {
 	barDraw_event = CreateEvent(0,0,0,0);
-	CreateThread(0, 0, 
+	barDraw_hThread = CreateThread(0, 0, 
 		BarThreadProc, 0, 0, 0);
 	WaitForSingleObject(
 		barDraw_event, INFINITE);
+}
+
+void barDraw_stop(void)
+{
+	TerminateThread(barDraw_hThread,0);
+	
+
 }

@@ -9,6 +9,7 @@ const char progName[] = "test";
 
 // barDraw interface
 void barDraw_start(void);
+void barDraw_stop(void);
 extern FrameTime barDraw_ft;
 
 void setDlgItemFlt(HWND hwnd,
@@ -111,8 +112,8 @@ INT_PTR CALLBACK mainDlgProc(
 int main()
 {
 	barDraw_start();
-
 	DialogBox(NULL, MAKEINTRESOURCE(
 		IDD_DIALOG1), NULL, mainDlgProc);
-	exit(1);
+	barDraw_stop();
+	InvalidateRect(NULL,0,TRUE);
 }
